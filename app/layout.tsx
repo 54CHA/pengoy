@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
+import { ClientThemeProvider } from "@/components/providers/client-provider";
 import { Toaster } from '@/components/ui/toaster';
 import { Heart } from 'lucide-react';
 
@@ -19,13 +19,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} dark flex flex-col min-h-screen`}>
-        <ThemeProvider
+      <body>
+        <ClientThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem={false}
+          enableSystem
           disableTransitionOnChange
-          storageKey="theme-preference"
         >
           <main className="flex-1">
             {children}
@@ -37,7 +36,7 @@ export default function RootLayout({
             </p>
           </footer>
           <Toaster />
-        </ThemeProvider>
+        </ClientThemeProvider>
       </body>
     </html>
   );
