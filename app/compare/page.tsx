@@ -44,11 +44,11 @@ export default function ComparePage() {
     setIsLoading(true);
     setSelectedProfile(profileId.toString());
     
-    const winner = profiles.find(p => p.id === profileId);
-    const loser = profiles.find(p => p.id !== profileId);
+    const winner = profiles.find(p => p.id === profileId.toString());
+    const loser = profiles.find(p => p.id !== profileId.toString());
     
     if (winner && loser) {
-      const success = await updateVotes(winner.id, loser.id);
+      const success = await updateVotes(parseInt(winner.id), parseInt(loser.id));
       
       if (success) {
         toast({
@@ -87,7 +87,7 @@ export default function ComparePage() {
                       selectedProfile === profile.id &&
                         "ring-2 ring-orange-500 glow"
                     )}
-                    onClick={() => handleVote(profile.id)}
+                    onClick={() => handleVote(parseInt(profile.id))}
                   >
                     <div className="relative aspect-[3/4] sm:aspect-[4/5]">
                       {isLoading ? (
