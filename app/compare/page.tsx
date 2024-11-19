@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Flame, ThumbsDown, Trophy } from "lucide-react";
+import { ArrowRight, Flame, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 
 interface Profile {
   id: number;
@@ -34,6 +35,7 @@ const MOCK_PROFILES: Profile[] = [
 export default function ComparePage() {
   const [profiles] = useState<Profile[]>(MOCK_PROFILES);
   const [selectedProfile, setSelectedProfile] = useState<number | null>(null);
+  const router = useRouter();
 
   const handleVote = (profileId: number) => {
     setSelectedProfile(profileId);
@@ -91,35 +93,39 @@ export default function ComparePage() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-3 mt-4 sm:mt-8">
-            <Button
-              variant="outline"
-              size="icon"
-              className="glass-card text-white hover:bg-gray-800/50 border-gray-700/50 h-10 w-10 sm:h-12 sm:w-12 rounded-full hover:scale-105 transition-all duration-300"
-              onClick={() => {
-                /* Skip functionality */
-              }}
-            >
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-            <Link href="/leaderboard">
+          <div className="flex justify-center gap-3 mt-4 sm:mt-8 flex-col items-center relative z-10">
+            <div className="flex gap-4 flex-col sm:flex-row items-center sm:gap-6">
               <Button
                 variant="outline"
-                size="icon"
-                className="glass-card text-white hover:bg-gray-800/50 border-gray-700/50 h-10 w-10 sm:h-12 sm:w-12 rounded-full hover:scale-105 transition-all duration-300"
+                className="glass-card text-white hover:bg-orange-500/20 border-orange-500/30 hover:scale-105 transition-all duration-300 hover:border-orange-500/50 px-4 sm:px-6"
+                onClick={() => {
+                  /* Skip functionality */
+                }}
               >
-                <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="mr-2">Пропустить</span>
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
               </Button>
-            </Link>
+
+              <Link href="/leaderboard">
+                <Button
+                  variant="outline"
+                  className="glass-card text-white hover:bg-pink-500/20 border-pink-500/30 hover:scale-105 transition-all duration-300 hover:border-pink-500/50 px-4 sm:px-6"
+                >
+                  <span className="mr-2">Лидерборд</span>
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
+                </Button>
+              </Link>
+            </div>
+
             <Button
-              variant="outline"
-              size="icon"
-              className="glass-card text-white hover:bg-gray-800/50 border-gray-700/50 h-10 w-10 sm:h-12 sm:w-12 rounded-full hover:scale-105 transition-all duration-300"
+              variant="ghost"
+              className="text-gray-400 hover:text-pink-400 hover:bg-transparent hover:underline text-sm mt-4 cursor-pointer"
               onClick={() => {
-                /* Report functionality */
+                console.log('Button clicked');
+                router.push('/remove-profile');
               }}
             >
-              <ThumbsDown className="w-4 h-4 sm:w-5 sm:h-5" />
+              Хотите удалить свой профиль?
             </Button>
           </div>
         </div>

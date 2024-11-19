@@ -17,7 +17,7 @@ interface LeaderboardEntry {
 }
 
 const MOCK_LEADERBOARD: LeaderboardEntry[] = Array.from(
-  { length: 25 },
+  { length: 15 },
   (_, i) => ({
     id: i + 1,
     rank: i + 1,
@@ -53,7 +53,7 @@ export default function LeaderboardPage() {
       <div className="container max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-pink-500 to-orange-500">
-            Топ 25 Лидеров
+            Топ 15 Лидеров
           </h1>
           <p className="text-gray-300 text-base sm:text-lg md:text-xl">
             Самые популярные по вашему мнению

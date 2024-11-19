@@ -15,14 +15,11 @@ export default function Home() {
           </div>
         </div>
 
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-pink-500 to-orange-500 animate-gradient leading-tight lg:leading-snug">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-pink-500 to-orange-500 animate-gradient leading-normal sm:leading-loose lg:leading-snug">
           <span className="text-orange-100">Poly</span>Enjoyers
         </h1>
 
-        <p className="text-lg md:text-xl text-gray-300 mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed px-4">
-          Кто лучший? Выбор за вами
-        </p>
-
+       
         <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center px-4">
           <Link href="/compare" className="w-full sm:w-auto">
             <Button
@@ -49,3 +46,4 @@ export default function Home() {
     </main>
   );
 }
+
