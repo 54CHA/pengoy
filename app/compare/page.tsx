@@ -91,16 +91,18 @@ export default function ComparePage() {
                   >
                     <div className="relative aspect-[3/4] sm:aspect-[4/5]">
                       {isLoading ? (
-                        <div className="absolute inset-0 bg-black/90" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm transition-all duration-300">
+                          <Loader2 className="w-8 h-8 text-orange-500/70 animate-spin" />
+                        </div>
                       ) : (
-                        <>
+                        <div className="relative w-full h-full animate-fadeIn">
                           <img
                             src={profile.image_url}
                             alt={profile.name}
                             className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                        </>
+                        </div>
                       )}
                       <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 md:p-6 text-center">
                         <h2 className="text-sm sm:text-xl md:text-2xl font-bold text-white truncate">
