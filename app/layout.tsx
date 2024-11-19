@@ -25,6 +25,7 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
+          storageKey="theme-preference"
         >
           <main className="flex-1">
             {children}
