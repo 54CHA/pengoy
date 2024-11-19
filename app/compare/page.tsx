@@ -1,47 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Flame, Trophy } from "lucide-react";
+import { ArrowRight, Flame, Trophy, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
-
-interface Profile {
-  id: number;
-  name: string;
-  image: string;
-  votes: number;
-}
-
-const MOCK_PROFILES: Profile[] = [
-  {
-    id: 1,
-    name: "Alex Chen",
-    image:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=800&auto=format&fit=crop",
-    votes: 150,
-  },
-  {
-    id: 2,
-    name: "Jordan Lee",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop",
-    votes: 120,
-  },
-];
+import { Profile, getRandomProfiles, updateVotes } from "@/lib/database";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ComparePage() {
-  const [profiles] = useState<Profile[]>(MOCK_PROFILES);
-  const [selectedProfile, setSelectedProfile] = useState<number | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleVote = (profileId: number) => {
-    setSelectedProfile(profileId);
+  const fetchProfiles = async () => {
+    setIsLoading(true);
+    const newProfiles = await getRandomProfiles(2);
+    setProfiles(newProfiles);
+    setIsLoading(false);
+  };
+
+  const handleSkip = async () => {
+    setSelectedProfile(null);
+    toast({
+      title: "Пропущено",
+      description: "Загрузка новых профилей...",
+      duration: 1000
+    });
+    await fetchProfiles();
+  };
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
+
+  const handleVote = async (profileId: number) => {
+    if (isLoading) return; // Prevent double votes while loading
+    
+    setIsLoading(true);
+    setSelectedProfile(profileId.toString());
+    
+    const winner = profiles.find(p => p.id === profileId);
+    const loser = profiles.find(p => p.id !== profileId);
+    
+    if (winner && loser) {
+      const success = await updateVotes(winner.id, loser.id);
+      
+      if (success) {
+        toast({
+          title: "Голос учтен!",
+          description: `Вы проголосовали за ${winner.name}`,
+          duration: 500
+        });
+      }
+    }
+
     setTimeout(() => {
       setSelectedProfile(null);
-    }, 1000);
+      fetchProfiles();
+    }, 250);
   };
 
   return (
@@ -69,22 +90,22 @@ export default function ComparePage() {
                     onClick={() => handleVote(profile.id)}
                   >
                     <div className="relative aspect-[3/4] sm:aspect-[4/5]">
-                      <img
-                        src={profile.image}
-                        alt={profile.name}
-                        className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                      {isLoading ? (
+                        <div className="absolute inset-0 bg-black/90" />
+                      ) : (
+                        <>
+                          <img
+                            src={profile.image_url}
+                            alt={profile.name}
+                            className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                        </>
+                      )}
                       <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 md:p-6 text-center">
                         <h2 className="text-sm sm:text-xl md:text-2xl font-bold text-white truncate">
                           {profile.name}
                         </h2>
-                        <div className="flex items-center justify-center gap-1 sm:gap-2 mt-0.5 sm:mt-2">
-                          <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
-                          <span className="text-orange-200 text-xs sm:text-sm md:text-base">
-                            {profile.votes}
-                          </span>
-                        </div>
                       </div>
                     </div>
                   </Card>
@@ -98,9 +119,8 @@ export default function ComparePage() {
               <Button
                 variant="outline"
                 className="glass-card text-white hover:bg-orange-500/20 border-orange-500/30 hover:scale-105 transition-all duration-300 hover:border-orange-500/50 px-4 sm:px-6"
-                onClick={() => {
-                  /* Skip functionality */
-                }}
+                onClick={handleSkip}
+                disabled={isLoading}
               >
                 <span className="mr-2">Пропустить</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />

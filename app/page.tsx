@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Flame, Trophy } from "lucide-react";
+import { ArrowRight, Flame, Heart, Trophy } from "lucide-react";
 
 export default function Home() {
   return (
@@ -41,8 +41,13 @@ export default function Home() {
           </Link>
         </div>
       </div>
-
+     
       <div className="absolute bottom-0 left-0 w-full h-2/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+       <footer className="py-6 text-center text-sm text-gray-400">
+            <p className="flex items-center justify-center gap-1">
+              Made with <Heart className="h-4 w-4 text-red-500 animate-pulse" /> by ITMO students
+            </p>
+          </footer>
     </main>
   );
 }

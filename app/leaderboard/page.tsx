@@ -1,34 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Flame, Trophy, Medal, Star } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-interface LeaderboardEntry {
-  id: number;
-  rank: number;
-  name: string;
-  image: string;
-  votes: number;
-  winRate: number;
-}
-
-const MOCK_LEADERBOARD: LeaderboardEntry[] = Array.from(
-  { length: 15 },
-  (_, i) => ({
-    id: i + 1,
-    rank: i + 1,
-    name: `User ${i + 1}`,
-    image: `https://images.unsplash.com/photo-${
-      1500000000000 + i
-    }?q=80&w=400&auto=format&fit=crop`,
-    votes: Math.floor(1000 - i * 35 + Math.random() * 50),
-    winRate: Math.floor(80 - i * 2 + Math.random() * 5),
-  })
-);
+import { Profile, getLeaderboard } from "@/lib/database";
 
 function getRankIcon(rank: number) {
   switch (rank) {
@@ -44,7 +22,18 @@ function getRankIcon(rank: number) {
 }
 
 export default function LeaderboardPage() {
-  const [leaderboard] = useState<LeaderboardEntry[]>(MOCK_LEADERBOARD);
+  const [leaderboard, setLeaderboard] = useState<Profile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      const data = await getLeaderboard();
+      setLeaderboard(data);
+      setIsLoading(false);
+    };
+
+    fetchLeaderboard();
+  }, []);
 
   return (
     <main className="min-h-screen gradient-bg py-8 sm:py-12 md:py-16 px-3 sm:px-4 relative">
@@ -76,7 +65,7 @@ export default function LeaderboardPage() {
 
                 <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-gray-700/50">
                   <img
-                    src={entry.image}
+                    src={entry.image_url}
                     alt={entry.name}
                     className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
                   />
@@ -95,7 +84,7 @@ export default function LeaderboardPage() {
                     </span>
                     <span className="text-gray-500 hidden sm:inline">•</span>
                     <span className="text-green-400 font-medium hidden sm:inline">
-                      {entry.winRate}% win rate
+                      {entry.win_rate}% win rate
                     </span>
                   </div>
                 </div>
