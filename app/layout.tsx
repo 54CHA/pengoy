@@ -8,6 +8,8 @@ import { cookies } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'PolyEnjoyers',
   description: 'Compare and rate profiles in a modern, engaging way',
@@ -32,8 +34,6 @@ export default async function RootLayout({
           <main className="flex-1">
             {children}
           </main>
-          
-         
           <Toaster />
         </ClientThemeProvider>
       </body>
