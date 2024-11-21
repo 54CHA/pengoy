@@ -23,7 +23,7 @@ export default function RemoveProfilePage() {
             <span className="text-gray-300">Удаление профиля</span>
           </div>
 
-          <div className="glass-card p-6 md:p-8 rounded-2xl">
+          <div className="glass-card p-6 md:p-8 rounded-2xl before:hidden sm:before:block">
             <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-pink-500 to-orange-500 pb-1">
               Запрос на удаление профиля
               

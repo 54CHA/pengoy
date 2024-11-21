@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Profile, getLeaderboard } from "@/lib/database";
 
 function getRankDisplay(rank: number) {
-  const baseClasses = "flex items-center gap-1.5 font-bold w-[60px] sm:w-[80px] justify-center";
+  const baseClasses = "flex items-center gap-1.5 font-bold justify-center";
   
   if (rank === 1) {
     return (
@@ -18,7 +18,7 @@ function getRankDisplay(rank: number) {
           <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
           <div className="absolute inset-0 text-yellow-400 animate-ping opacity-50" />
         </div>
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400 animate-gradient">
+        <span className="hidden sm:inline bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400 animate-gradient">
           #{rank}
         </span>
       </div>
@@ -28,7 +28,7 @@ function getRankDisplay(rank: number) {
   if (rank <= 3) {
     return (
       <div className={cn(baseClasses, "text-xl sm:text-2xl")}>
-        <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
+        <Medal className="hidden sm:block w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-400">
           #{rank}
         </span>
@@ -36,11 +36,22 @@ function getRankDisplay(rank: number) {
     );
   }
   
-  if (rank <= 10) {
+  if (rank <= 5) {
     return (
       <div className={cn(baseClasses, "text-lg sm:text-xl")}>
-        <CircleUserRound className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400/80" />
+        <Star className="hidden sm:inline w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
         <span className="text-pink-400">
+          #{rank}
+        </span>
+      </div>
+    );
+  }
+
+  if (rank <= 10) {
+    return (
+      <div className={cn(baseClasses, "text-base sm:text-lg")}>
+        <Sparkles className="hidden sm:inline w-4 h-4 sm:w-5 sm:h-5 text-rose-400/80" />
+        <span className="text-rose-400">
           #{rank}
         </span>
       </div>
@@ -49,6 +60,7 @@ function getRankDisplay(rank: number) {
   
   return (
     <div className={cn(baseClasses, "text-base sm:text-lg")}>
+      <Sparkles className="hidden sm:inline w-4 h-4 sm:w-5 sm:h-5 text-gray-400/80" />
       <span className="text-gray-400">
         #{rank}
       </span>
@@ -95,9 +107,9 @@ export default function LeaderboardPage() {
                 "hover:before:translate-x-full before:transition-transform before:duration-700",
               )}
             >
-              <div className="flex items-center p-2 sm:p-4 md:p-6 gap-2 sm:gap-6 relative">
+              <div className="flex items-center p-2.5 sm:p-4 md:p-6 gap-1.5 sm:gap-6 relative">
                 {/* Left side: Rank */}
-                <div className="flex-shrink-0 w-[50px] sm:w-[80px] flex justify-center">
+                <div className="flex-shrink-0 w-[32px] sm:w-[80px] flex justify-center">
                   {getRankDisplay(entry.rank)}
                 </div>
 
@@ -113,7 +125,7 @@ export default function LeaderboardPage() {
                   </div>
 
                   <div className="min-w-0 flex-shrink">
-                    <h3 className="text-sm sm:text-xl md:text-2xl font-semibold text-white truncate">
+                    <h3 className="text-sm sm:text-xl md:text-2xl font-semibold text-white truncate pr-1">
                       {entry.name}
                     </h3>
                   </div>
@@ -121,7 +133,7 @@ export default function LeaderboardPage() {
 
                 {/* Right side: Stats */}
                 <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-3 ml-auto">
-                  <div className="group/stat relative">
+                  <div className="group/stat relative"> 
                     <div className="absolute -inset-[1px] bg-gradient-to-r from-orange-500/20 via-rose-500/20 to-orange-500/20 rounded-lg blur-sm opacity-75 group-hover/stat:opacity-100 transition-all duration-300" />
                     <div className="relative flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg bg-gradient-to-r from-black/40 to-black/40 border border-orange-500/20 group-hover/stat:border-orange-500/40">
                       <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 group-hover/stat:text-orange-300" />
