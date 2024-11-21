@@ -1,12 +1,14 @@
 import { supabase } from './supabase';
 
 export type Profile = {
-  id: string;
+  id: number;
   name: string;
   image_url: string;
   votes: number;
   win_rate: number;
   rank: number;
+  elo_rating: number;
+  total_comparisons: number;
 };
 
 export async function getRandomProfiles(count: number = 2): Promise<Profile[]> {
@@ -38,7 +40,7 @@ export async function getLeaderboard(limit: number = 15): Promise<Profile[]> {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    .order('votes', { ascending: false })
+    .order('elo_rating', { ascending: false })
     .limit(limit);
 
   if (error) {
@@ -55,18 +57,13 @@ export async function getLeaderboard(limit: number = 15): Promise<Profile[]> {
 }
 
 export async function updateVotes(winnerId: number, loserId: number) {
-  // Update winner
-  const { error: winnerError } = await supabase.rpc('increment_votes', {
-    profile_id: winnerId
+  const { error } = await supabase.rpc('update_elo_ratings', {
+    winner_id: winnerId,
+    loser_id: loserId
   });
 
-  // Update loser's total_comparisons
-  const { error: loserError } = await supabase.rpc('increment_comparisons', {
-    profile_id: loserId
-  });
-
-  if (winnerError || loserError) {
-    console.error('Error updating votes:', winnerError || loserError);
+  if (error) {
+    console.error('Error updating ratings:', error);
     return false;
   }
 
@@ -76,4 +73,18 @@ export async function updateVotes(winnerId: number, loserId: number) {
 function calculateWinRate(votes: number, totalComparisons: number): number {
   if (totalComparisons === 0) return 0;
   return Math.round((votes / totalComparisons) * 100);
+}
+
+export async function getTotalVotes(): Promise<number> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('total_comparisons')
+    .single();
+
+  if (error || !data) {
+    console.error('Error fetching total votes:', error);
+    return 0;
+  }
+
+  return Math.floor(data.total_comparisons / 2); // Divide by 2 since each comparison counts as 2 total_comparisons
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Flame, Trophy, Loader2 } from "lucide-react";
@@ -9,61 +9,94 @@ import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { Profile, getRandomProfiles, updateVotes } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
+import { usePreloadImages } from "@/lib/hooks/use-preload-images";
 
 export default function ComparePage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [nextProfiles, setNextProfiles] = useState<Profile[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { preloadImages } = usePreloadImages();
   const router = useRouter();
   const { toast } = useToast();
 
+  const fetchAndPreloadProfiles = async () => {
+    const newProfiles = await getRandomProfiles(2);
+    const nextProfiles = await getRandomProfiles(2);
+    
+    // Preload next profile images
+    await preloadImages(nextProfiles.map(p => p.image_url));
+    
+    return { newProfiles, nextProfiles };
+  };
+
   const fetchProfiles = async () => {
     setIsLoading(true);
-    const newProfiles = await getRandomProfiles(2);
-    setProfiles(newProfiles);
-    setIsLoading(false);
+    try {
+      const { newProfiles, nextProfiles } = await fetchAndPreloadProfiles();
+      setProfiles(newProfiles);
+      setNextProfiles(nextProfiles);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSkip = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
     setSelectedProfile(null);
+    
     toast({
       title: "Пропущено",
       description: "Загрузка новых профилей...",
       duration: 1000
     });
-    await fetchProfiles();
+
+    // Use the preloaded profiles and fetch the next set
+    setProfiles(nextProfiles);
+    const { nextProfiles: newNextProfiles } = await fetchAndPreloadProfiles();
+    setNextProfiles(newNextProfiles);
+    setIsLoading(false);
   };
 
-  useEffect(() => {
-    fetchProfiles();
-  }, []);
-
   const handleVote = async (profileId: number) => {
-    if (isLoading) return; // Prevent double votes while loading
+    if (isLoading) return;
     
     setIsLoading(true);
-    setSelectedProfile(profileId.toString());
+    setSelectedProfile(profileId);
     
-    const winner = profiles.find(p => p.id === profileId.toString());
-    const loser = profiles.find(p => p.id !== profileId.toString());
+    const winner = profiles.find(p => p.id === profileId);
+    const loser = profiles.find(p => p.id !== profileId);
     
     if (winner && loser) {
-      const success = await updateVotes(parseInt(winner.id), parseInt(loser.id));
+      const success = await updateVotes(winner.id, loser.id);
       
       if (success) {
+       
+      } else {
+        console.error('Failed to update votes');
         toast({
-          title: "Голос учтен!",
-          description: `Вы проголосовали за ${winner.name}`,
+          title: "Ошибка",
+          description: "Не удалось обновить голос",
           duration: 500
         });
       }
     }
 
-    setTimeout(() => {
+    // Use the preloaded profiles and fetch the next set
+    setTimeout(async () => {
+      setProfiles(nextProfiles);
+      const { nextProfiles: newNextProfiles } = await fetchAndPreloadProfiles();
+      setNextProfiles(newNextProfiles);
       setSelectedProfile(null);
-      fetchProfiles();
+      setIsLoading(false);
     }, 250);
   };
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
 
   return (
     <main className="min-h-screen gradient-bg relative">
@@ -87,23 +120,17 @@ export default function ComparePage() {
                       selectedProfile === profile.id &&
                         "ring-2 ring-orange-500 glow"
                     )}
-                    onClick={() => handleVote(parseInt(profile.id))}
+                    onClick={() => handleVote(profile.id)}
                   >
                     <div className="relative aspect-[3/4] sm:aspect-[4/5]">
-                      {isLoading ? (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm transition-all duration-300">
-                          <Loader2 className="w-8 h-8 text-orange-500/70 animate-spin" />
-                        </div>
-                      ) : (
-                        <div className="relative w-full h-full animate-fadeIn">
-                          <img
-                            src={profile.image_url}
-                            alt={profile.name}
-                            className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                        </div>
-                      )}
+                      <div className="relative w-full h-full animate-fadeIn">
+                        <img
+                          src={profile.image_url}
+                          alt={profile.name}
+                          className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                      </div>
                       <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 md:p-6 text-center">
                         <h2 className="text-sm sm:text-xl md:text-2xl font-bold text-white truncate">
                           {profile.name}

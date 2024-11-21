@@ -2,23 +2,58 @@
 
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Flame, Trophy, Medal, Star } from "lucide-react";
+import { Flame, Trophy, Medal, Star, Sparkles, Swords, Crown, Shield, CircleUserRound } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Profile, getLeaderboard } from "@/lib/database";
 
-function getRankIcon(rank: number) {
-  switch (rank) {
-    case 1:
-      return <Trophy className="w-8 h-8 text-yellow-400" />;
-    case 2:
-      return <Medal className="w-8 h-8 text-gray-300" />;
-    case 3:
-      return <Medal className="w-8 h-8 text-orange-600" />;
-    default:
-      return <Star className="w-6 h-6 text-gray-600" />;
+function getRankDisplay(rank: number) {
+  const baseClasses = "flex items-center gap-1.5 font-bold w-[60px] sm:w-[80px] justify-center";
+  
+  if (rank === 1) {
+    return (
+      <div className={cn(baseClasses, "text-2xl sm:text-3xl")}>
+        <div className="relative">
+          <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-400" />
+          <div className="absolute inset-0 text-yellow-400 animate-ping opacity-50" />
+        </div>
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400 animate-gradient">
+          #{rank}
+        </span>
+      </div>
+    );
   }
+  
+  if (rank <= 3) {
+    return (
+      <div className={cn(baseClasses, "text-xl sm:text-2xl")}>
+        <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-400">
+          #{rank}
+        </span>
+      </div>
+    );
+  }
+  
+  if (rank <= 10) {
+    return (
+      <div className={cn(baseClasses, "text-lg sm:text-xl")}>
+        <CircleUserRound className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400/80" />
+        <span className="text-pink-400">
+          #{rank}
+        </span>
+      </div>
+    );
+  }
+  
+  return (
+    <div className={cn(baseClasses, "text-base sm:text-lg")}>
+      <span className="text-gray-400">
+        #{rank}
+      </span>
+    </div>
+  );
 }
 
 export default function LeaderboardPage() {
@@ -54,43 +89,63 @@ export default function LeaderboardPage() {
             <Card
               key={entry.id}
               className={cn(
-                "glass-card hover:bg-gray-900/70 transition-all duration-300 hover:scale-[1.02] group",
-                entry.rank <= 3 && "hover:glow"
+                "glass-card relative overflow-hidden transition-all duration-300 hover:scale-[1.02] group",
+                entry.rank <= 3 ? "border-orange-500/30" : "border-gray-800",
+                "before:absolute before:inset-0 before:bg-gradient-to-r before:from-black/10 before:via-white/5 before:to-black/10",
+                "hover:before:translate-x-full before:transition-transform before:duration-700",
               )}
             >
-              <div className="flex items-center p-3 sm:p-4 md:p-6 gap-3 sm:gap-6">
-                <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16">
-                  {getRankIcon(entry.rank)}
+              <div className="flex items-center p-2 sm:p-4 md:p-6 gap-2 sm:gap-6 relative">
+                {/* Left side: Rank */}
+                <div className="flex-shrink-0 w-[50px] sm:w-[80px] flex justify-center">
+                  {getRankDisplay(entry.rank)}
                 </div>
 
-                <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-gray-700/50">
-                  <img
-                    src={entry.image_url}
-                    alt={entry.name}
-                    className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
+                {/* Center: Avatar and Name */}
+                <div className="flex items-center gap-2 sm:gap-3 flex-grow min-w-0">
+                  <div className="relative w-8 h-8 sm:w-16 sm:h-16 rounded-full overflow-hidden flex-shrink-0">
+                    <div className="absolute inset-0 ring-2 ring-gray-700/50 group-hover:ring-orange-500/30 transition-all duration-300 rounded-full" />
+                    <img
+                      src={entry.image_url}
+                      alt={entry.name}
+                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
 
-                <div className="flex-grow min-w-0">
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-white mb-1 sm:mb-2 truncate">
-                    {entry.name}
-                  </h3>
-                  <div className="flex items-center gap-3 sm:gap-6 text-sm sm:text-base">
-                    <span className="flex items-center gap-1.5 sm:gap-2">
-                      <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
-                      <span className="text-orange-200 font-medium">
-                        {entry.votes} голосов
-                      </span>
-                    </span>
-                    <span className="text-gray-500 hidden sm:inline">•</span>
-                    <span className="text-green-400 font-medium hidden sm:inline">
-                      {entry.win_rate}% win rate
-                    </span>
+                  <div className="min-w-0 flex-shrink">
+                    <h3 className="text-sm sm:text-xl md:text-2xl font-semibold text-white truncate">
+                      {entry.name}
+                    </h3>
                   </div>
                 </div>
 
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-orange-500 to-pink-500">
-                  #{entry.rank}
+                {/* Right side: Stats */}
+                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-3 ml-auto">
+                  <div className="group/stat relative">
+                    <div className="absolute -inset-[1px] bg-gradient-to-r from-orange-500/20 via-rose-500/20 to-orange-500/20 rounded-lg blur-sm opacity-75 group-hover/stat:opacity-100 transition-all duration-300" />
+                    <div className="relative flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg bg-gradient-to-r from-black/40 to-black/40 border border-orange-500/20 group-hover/stat:border-orange-500/40">
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 group-hover/stat:text-orange-300" />
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center gap-0 sm:gap-1">
+                        <span className="hidden sm:inline text-[10px] uppercase tracking-wider text-orange-400/70">WR</span>
+                        <span className="text-orange-400 font-bold text-xs sm:text-lg leading-none group-hover/stat:text-orange-300">
+                          {entry.win_rate}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="group/stat relative">
+                    <div className="absolute -inset-[1px] bg-gradient-to-r from-pink-500/20 via-rose-500/20 to-pink-500/20 rounded-lg blur-sm opacity-75 group-hover/stat:opacity-100 transition-all duration-300" />
+                    <div className="relative flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg bg-gradient-to-r from-black/40 to-black/40 border border-pink-500/20 group-hover/stat:border-pink-500/40">
+                      <Swords className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400 group-hover/stat:text-pink-300" />
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center gap-0 sm:gap-1">
+                        <span className="hidden sm:inline text-[10px] uppercase tracking-wider text-pink-400/70">ELO</span>
+                        <span className="text-pink-400 font-bold text-xs sm:text-lg leading-none group-hover/stat:text-pink-300">
+                          {entry.elo_rating}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -101,9 +156,38 @@ export default function LeaderboardPage() {
           <Link href="/compare">
             <Button
               size="lg"
-              className="fire-gradient hover:opacity-90 text-white px-6 sm:px-10 py-5 sm:py-7 text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:glow"
+              className="group relative overflow-hidden px-8 sm:px-12 py-6 sm:py-8 
+                         text-base sm:text-lg rounded-2xl transition-all duration-500 
+                         hover:scale-105 transform"
             >
-              Голосовать
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 via-rose-500 to-orange-500 
+                              animate-gradient opacity-90 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent 
+                              translate-x-[-100%] group-hover:translate-x-[100%] transition-transform 
+                              duration-1000 ease-in-out" />
+              
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 via-rose-500 to-orange-500 
+                              rounded-2xl opacity-0 group-hover:opacity-50 blur-xl transition-all duration-500 
+                              animate-pulse" />
+              
+              {/* Inner shadow for depth */}
+              <div className="absolute inset-[2px] rounded-2xl bg-gradient-to-r from-black/50 via-black/25 
+                              to-black/50 opacity-20" />
+              
+              {/* Button content */}
+              <div className="relative flex items-center justify-center gap-2 text-white font-medium">
+                <span className="tracking-wide">Голосовать</span>
+                <Flame className="w-5 h-5 animate-pulse group-hover:animate-none
+                                 group-hover:rotate-12 transition-transform duration-1000" />
+              </div>
+              
+              {/* Border glow */}
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-white/20 group-hover:ring-white/40 
+                              transition-all duration-500" />
             </Button>
           </Link>
         </div>

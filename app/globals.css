@@ -66,6 +66,49 @@
   background: rgba(17, 17, 17, 0.7);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transform: skewX(-15deg);
+  transition: 0.5s;
+}
+
+.glass-card:hover::before {
+  left: 100%;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.card-hover-effect {
+  transition: all 0.3s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 30px -5px rgba(255, 69, 0, 0.3);
 }
 
 @keyframes float {
@@ -76,4 +119,74 @@
 
 .float-animation {
   animation: float 6s ease-in-out infinite;
+}
+
+@layer components {
+  .stats-pill-mobile {
+    @apply flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-colors duration-300;
+  }
+
+  .stats-container-desktop {
+    @apply relative;
+  }
+
+  .stats-glow-desktop {
+    @apply absolute inset-0 bg-gradient-to-r blur-md transition-all duration-300 opacity-50 rounded-lg 
+    group-hover/stat:blur-lg group-hover/stat:opacity-60;
+  }
+
+  .stats-content-desktop {
+    @apply relative flex items-center gap-2 px-3 py-1.5 rounded-lg border
+    transition-all duration-300 backdrop-blur-sm;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 8s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, 20px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -20px); }
+}
+
+@keyframes shimmer-delayed {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-float-slow {
+  animation: float-slow 15s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 18s ease-in-out infinite;
+}
+
+.animate-shimmer-delayed {
+  animation: shimmer-delayed 3s ease-in-out infinite;
+  animation-delay: 1.5s;
 }
